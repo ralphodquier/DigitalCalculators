@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table, #totalEarned {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2;}
+
+tr:hover {background-color: #ddd;}
+
+th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+</style>
+</head>
+<body>
+
+<h1>Maya Calculator</h1>
+<label>Starting Balance: </label>
+<input type='number' id='startBalance'>
+
+<label>Days: </label>
+<input type='number' id='days'>
+
+<button type='button' onclick='startCalculation()'>Start</button>
+
+<br>
+<h4 id='totalEarned'></h4>
+
+<table id='myTable'>
+    <thead>
+        <tr>
+            <th>Day</th>
+            <th>Balance</th>
+            <th>Gross Base Interest</th>
+            <th>Base Interest Tax</th>
+            <th>Net Base Interest</th>
+            <th>Gross Bonus Interest</th>
+            <th>Bonus Interest Tax</th>
+            <th>Net Bonus Interest</th>
+            <th>Total Gross Interest</th>
+            <th>Total Interest Tax</th>
+            <th>Total Net Interest</th>
+        </tr>
+    </thead>
+    <tbody id='tableBody'></tbody>
+</table>
+
+</body>
+</html>
+
+<script>
+function startCalculation() {
+  document.getElementById('tableBody').innerHTML = '';
+
+  const baseInterestRate = parseFloat(4.5) / 100.0;
+  const bonusInterestRate = parseFloat(1.5) / 100.0;
+  const interestTaxRate = parseFloat(20) / 100.0;
+  const bonusInterestLimit = 100000;
+  const startBalance = parseFloat(document.getElementById('startBalance').value)
+  const days = parseInt(document.getElementById('days').value);
+  const table = document.getElementById('tableBody');
+
+  let newBalance = startBalance; 
+  let totalInterest = 0;
+  for (let i = 0; i < days; i++) {
+    let bonusLimit = newBalance > bonusInterestLimit ? true : false;
+
+    let grossBaseInterest = parseFloat(((newBalance * baseInterestRate) / 365).toString().substring(0, 5)).toFixed(2);
+    let baseInterestTax = (grossBaseInterest * interestTaxRate).toFixed(2);
+    let netBaseInterest = (grossBaseInterest - baseInterestTax).toFixed(2);
+
+    let bonusBalance = bonusLimit ? 0 : newBalance;
+    let grossBonusInterest = parseFloat(((bonusBalance * bonusInterestRate) / 365).toString().substring(0, 5)).toFixed(2);
+    let bonusInterestTax = (grossBonusInterest * interestTaxRate).toFixed(2);
+    let netBonusInterest = (grossBonusInterest - bonusInterestTax).toFixed(2);
+
+    let totalGrossInterest = (parseFloat(grossBaseInterest) + parseFloat(grossBonusInterest)).toFixed(2);
+    let totalInterestTax = (parseFloat(baseInterestTax) + parseFloat(bonusInterestTax)).toFixed(2);
+    let totalNetInterest = (parseFloat(netBaseInterest) + parseFloat(netBonusInterest)).toFixed(2);
+
+    let row = table.insertRow(-1);
+    let cell1 = row.insertCell(0);
+    cell1.innerHTML = 'Day ' + (i + 1);
+    let cell2 = row.insertCell(1);
+    cell2.innerHTML = newBalance.toLocaleString();
+    
+    let cell3 = row.insertCell(2)
+    cell3.innerHTML = grossBaseInterest;
+    let cell4 = row.insertCell(3)
+    cell4.innerHTML = baseInterestTax;
+    let cell5 = row.insertCell(4)
+    cell5.innerHTML = netBaseInterest;
+    
+    let cell6 = row.insertCell(5)
+    cell6.innerHTML = grossBonusInterest;
+    let cell7 = row.insertCell(6)
+    cell7.innerHTML = bonusInterestTax;
+    let cell8 = row.insertCell(7)
+    cell8.innerHTML = netBonusInterest;
+
+    let cell9 = row.insertCell(8)
+    cell9.innerHTML = totalGrossInterest;
+    let cell10 = row.insertCell(9)
+    cell10.innerHTML = totalInterestTax;
+    let cell11 = row.insertCell(10)
+    cell11.innerHTML = totalNetInterest;
+
+    newBalance = parseFloat(newBalance) + parseFloat(totalNetInterest);
+    totalInterest = parseFloat(totalInterest) + parseFloat(totalNetInterest);
+  }
+
+  document.getElementById('totalEarned').innerHTML = 'Total Interest Earned: ' + (totalInterest).toLocaleString() + '<br>'
+                                                   + 'Ending Balance: ' + (newBalance).toLocaleString();
+} 
+
+</script>
+
+

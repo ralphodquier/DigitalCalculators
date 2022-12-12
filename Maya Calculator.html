@@ -25,6 +25,10 @@ th {
   background-color: #04AA6D;
   color: white;
 }
+
+.digits {
+  text-align:right;
+}
 </style>
 </head>
 <body>
@@ -71,12 +75,14 @@ function startCalculation() {
   const bonusInterestRate = parseFloat(1.5) / 100.0;
   const interestTaxRate = parseFloat(20) / 100.0;
   const bonusInterestLimit = 100000;
-  const startBalance = parseFloat(document.getElementById('startBalance').value)
+  const startBalance = parseFloat(document.getElementById('startBalance').value);
   const days = parseInt(document.getElementById('days').value);
   const table = document.getElementById('tableBody');
 
   let newBalance = startBalance; 
-  let totalInterest = 0;
+  let finalGrossInterest = 0;
+  let finalInterestTax = 0;
+  let finalNetInterest = 0;
   for (let i = 0; i < days; i++) {
     let bonusLimit = newBalance > bonusInterestLimit ? true : false;
 
@@ -84,7 +90,7 @@ function startCalculation() {
     let baseInterestTax = (grossBaseInterest * interestTaxRate).toFixed(2);
     let netBaseInterest = (grossBaseInterest - baseInterestTax).toFixed(2);
 
-    let bonusBalance = bonusLimit ? 0 : newBalance;
+    let bonusBalance = bonusLimit ? bonusInterestLimit : newBalance;
     let grossBonusInterest = parseFloat(((bonusBalance * bonusInterestRate) / 365).toString().substring(0, 5)).toFixed(2);
     let bonusInterestTax = (grossBonusInterest * interestTaxRate).toFixed(2);
     let netBonusInterest = (grossBonusInterest - bonusInterestTax).toFixed(2);
@@ -121,11 +127,19 @@ function startCalculation() {
     cell11.innerHTML = totalNetInterest;
 
     newBalance = parseFloat(newBalance) + parseFloat(totalNetInterest);
-    totalInterest = parseFloat(totalInterest) + parseFloat(totalNetInterest);
+    finalGrossInterest = parseFloat(finalGrossInterest) + parseFloat(totalGrossInterest);
+    finalInterestTax = parseFloat(finalInterestTax) + parseFloat(totalInterestTax);
+    finalNetInterest = parseFloat(finalNetInterest) + parseFloat(totalNetInterest);
   }
 
-  document.getElementById('totalEarned').innerHTML = 'Total Interest Earned: ' + (totalInterest).toLocaleString() + '<br>'
-                                                   + 'Ending Balance: ' + (newBalance).toLocaleString();
+  const totalEarned = '<tr><td>Total Gross Interest:</td><td class="digits">' + (finalGrossInterest).toLocaleString() + '</td></tr>'
+                    + '<tr><td>Total Tax Deducted:</td><td class="digits">' + (finalInterestTax).toLocaleString() + '</td></tr>'
+                    + '<tr><td>Total Net Interest:</td><td class="digits">' + (finalNetInterest).toLocaleString() + '</td></tr>'
+                    + '<tr><td>Starting Balance:</td><td class="digits">' + (startBalance).toLocaleString()  + '</td></tr>'
+                    + '<tr><td>Ending Balance:</td><td class="digits">' + (newBalance).toLocaleString() + '</td></tr>';
+
+  document.getElementById('totalEarned').innerHTML = '<table>' + totalEarned + '</table>'
+  
 } 
 
 </script>
